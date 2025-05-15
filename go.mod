@@ -377,3 +377,4 @@ require (
 )
 
 // replace github.com/seaweedfs/raft => /Users/chrislu/go/src/github.com/seaweedfs/raft
+replace github.com/hanwen/go-fuse/v2 => github.com/gplusplus314/go-fuse/v2 v2.0.0-20250514193950-67824cea0882
