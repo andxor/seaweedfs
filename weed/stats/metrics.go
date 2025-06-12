@@ -4,6 +4,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -14,6 +15,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/client_golang/prometheus/push"
 	"github.com/seaweedfs/seaweedfs/weed/glog"
+	"github.com/seaweedfs/seaweedfs/weed/util"
 )
 
 // Readonly volume types
@@ -33,6 +35,13 @@ var bucketLastActiveLock sync.Mutex
 
 var (
 	Gather = prometheus.NewRegistry()
+
+	InfoGauge = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Name:      "info",
+			Help:      "Build info.",
+		}, []string{"goarch", "goos", "version", "commit", "sizeLimitGB"})
 
 	MasterClientConnectCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
@@ -353,6 +362,9 @@ var (
 )
 
 func init() {
+	Gather.MustRegister(InfoGauge)
+	InfoGauge.WithLabelValues(runtime.GOARCH, runtime.GOOS, util.VERSION_NUMBER, util.COMMIT, strconv.Itoa(util.VolumeSizeLimitGB)).Set(1)
+
 	Gather.MustRegister(MasterClientConnectCounter)
 	Gather.MustRegister(MasterRaftIsleader)
 	Gather.MustRegister(MasterAdminLock)
